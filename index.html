@@ -420,6 +420,9 @@
             document.getElementById('form-price').value = item.price;
             document.getElementById('form-note').value = item.note || '';
 
+            const extra = document.getElementById('extra-fields');
+            extra.innerHTML = '';
+
             if (currentTab === 'cocktails') {
                 extra.innerHTML = `
                     <div class="space-y-1">
@@ -452,6 +455,8 @@
             document.getElementById('form-price').value = 0;
             document.getElementById('form-note').value = '';
 
+            const extra = document.getElementById('extra-fields');
+            extra.innerHTML = '';
             if (currentTab === 'cocktails') {
                 extra.innerHTML = `
                     <div class="space-y-1">
