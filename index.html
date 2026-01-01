@@ -273,6 +273,47 @@
             }
         }
 
+        async function handleItemImageUpload(event) {
+            const file = event.target.files[0];
+            const token = document.getElementById('github-token').value;
+            if (!file || !token) return alert('請先輸入 Token 並選擇檔案');
+
+            const preview = document.getElementById('item-preview');
+            const hiddenInput = document.getElementById('form-image');
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const base64Content = e.target.result.split(',')[1];
+                    const fileName = `item_${Date.now()}.${file.name.split('.').pop()}`;
+                    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/images/${fileName}`;
+
+                    const res = await fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Upload item image: ${fileName}`,
+                            content: base64Content
+                        })
+                    });
+
+                    if (!res.ok) throw new Error('圖片上傳失敗');
+
+                    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/main/images/${fileName}`;
+
+                    hiddenInput.value = rawUrl;
+                    preview.src = rawUrl;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
         async function saveToGitHub() {
             const token = document.getElementById('github-token').value;
             if (!token || !menuData) return alert('無資料可同步');
@@ -379,14 +420,18 @@
             document.getElementById('form-price').value = item.price;
             document.getElementById('form-note').value = item.note || '';
 
-            const extra = document.getElementById('extra-fields');
-            extra.innerHTML = '';
-
             if (currentTab === 'cocktails') {
                 extra.innerHTML = `
                     <div class="space-y-1">
-                        <label class="text-xs text-gray-500 uppercase font-bold">圖片網址</label>
-                        <input id="form-image" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" value="${item.image || ''}">
+                        <label class="text-xs text-gray-500 uppercase font-bold">圖片 (點擊更換)</label>
+                        <div class="relative group cursor-pointer aspect-square w-32 bg-black/40 rounded-xl border border-white/10 overflow-hidden" onclick="document.getElementById('item-upload').click()">
+                            <img id="item-preview" src="${item.image || ''}" class="w-full h-full object-cover ${item.image ? '' : 'hidden'}">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 ${item.image ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'} transition-opacity">
+                                <span class="material-symbols-outlined text-white">upload</span>
+                            </div>
+                        </div>
+                        <input type="file" id="item-upload" accept="image/*" class="hidden" onchange="handleItemImageUpload(event)">
+                        <input id="form-image" type="hidden" value="${item.image || ''}">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-500 uppercase font-bold">成份 (逗號分隔)</label>
@@ -407,13 +452,18 @@
             document.getElementById('form-price').value = 0;
             document.getElementById('form-note').value = '';
 
-            const extra = document.getElementById('extra-fields');
-            extra.innerHTML = '';
             if (currentTab === 'cocktails') {
                 extra.innerHTML = `
                     <div class="space-y-1">
-                        <label class="text-xs text-gray-500 uppercase font-bold">圖片網址</label>
-                        <input id="form-image" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold">
+                        <label class="text-xs text-gray-500 uppercase font-bold">圖片 (點擊上傳)</label>
+                        <div class="relative group cursor-pointer aspect-square w-32 bg-black/40 rounded-xl border border-white/10 overflow-hidden" onclick="document.getElementById('item-upload').click()">
+                            <img id="item-preview" src="" class="w-full h-full object-cover hidden">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 transition-opacity">
+                                <span class="material-symbols-outlined text-white">upload</span>
+                            </div>
+                        </div>
+                        <input type="file" id="item-upload" accept="image/*" class="hidden" onchange="handleItemImageUpload(event)">
+                        <input id="form-image" type="hidden">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-500 uppercase font-bold">成份 (逗號分隔)</label>
