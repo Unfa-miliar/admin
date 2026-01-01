@@ -67,6 +67,36 @@
             </div>
         </header>
 
+        <!-- Hero Image Management -->
+        <section class="mb-12 bg-dark-surface border border-white/10 rounded-3xl p-6">
+            <h2 class="text-xl font-serif font-bold text-white mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-gold">image</span>
+                主視覺照片管理
+            </h2>
+            <div class="flex flex-col md:flex-row gap-8 items-center">
+                <div
+                    class="w-full md:w-1/2 aspect-video bg-black/40 rounded-2xl border border-white/5 overflow-hidden relative group">
+                    <img id="hero-preview" src="" class="w-full h-full object-contain">
+                    <div id="upload-overlay"
+                        class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        onclick="document.getElementById('hero-upload').click()">
+                        <span class="material-symbols-outlined text-4xl text-white">upload</span>
+                    </div>
+                </div>
+                <div class="flex-1 space-y-4">
+                    <p class="text-gray-400 text-sm">此照片將顯示在首頁最上方。建議比例 16:9 或 4:3。</p>
+                    <input type="file" id="hero-upload" accept="image/*" class="hidden"
+                        onchange="handleHeroUpload(event)">
+                    <button onclick="document.getElementById('hero-upload').click()"
+                        class="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined">add_photo_alternate</span>
+                        更換照片
+                    </button>
+                    <div id="upload-status" class="text-xs text-gold hidden">正在上傳中...</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <!-- Sidebar: Categories -->
@@ -186,10 +216,60 @@
                 fileSha = data.sha;
                 menuData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
 
+                if (menuData.HERO_IMAGE) {
+                    document.getElementById('hero-preview').src = menuData.HERO_IMAGE;
+                }
+
                 renderCategoryTabs();
                 renderProducts();
             } catch (err) {
                 alert(err.message);
+            }
+        }
+
+        async function handleHeroUpload(event) {
+            const file = event.target.files[0];
+            const token = document.getElementById('github-token').value;
+            if (!file || !token) return alert('請先輸入 Token 並選擇檔案');
+
+            const status = document.getElementById('upload-status');
+            status.textContent = '正在上傳圖片中...';
+            status.classList.remove('hidden');
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const base64Content = e.target.result.split(',')[1];
+                    const fileName = `hero_${Date.now()}.${file.name.split('.').pop()}`;
+                    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/images/${fileName}`;
+
+                    const res = await fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Upload hero image: ${fileName}`,
+                            content: base64Content
+                        })
+                    });
+
+                    if (!res.ok) throw new Error('圖片上傳失敗');
+
+                    const uploadedData = await res.json();
+                    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/main/images/${fileName}`;
+
+                    menuData.HERO_IMAGE = rawUrl;
+                    document.getElementById('hero-preview').src = rawUrl;
+
+                    status.textContent = '圖片上傳成功！請記得點擊「同步到 GitHub」以儲存變更。';
+                    setTimeout(() => status.classList.add('hidden'), 5000);
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                alert(err.message);
+                status.classList.add('hidden');
             }
         }
 
