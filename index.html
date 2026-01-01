@@ -190,6 +190,8 @@
             path: 'data.json'
         };
 
+        const FLAVOR_LABELS = ["濃度", "酸感", "甜感", "茶感", "苦感", "草本", "果香", "花香", "鹹感"];
+
         let menuData = null;
         let currentTab = 'cocktails';
         let currentEditingId = null;
@@ -424,17 +426,34 @@
             extra.innerHTML = '';
 
             if (currentTab === 'cocktails') {
+                const flavorsHtml = FLAVOR_LABELS.map(f => `
+                    <div class="flex items-center justify-between bg-black/20 p-2 rounded-lg">
+                        <span class="text-xs text-gray-400 capitalize">${f}</span>
+                        <select data-flavor="${f}" class="flavor-input bg-dark-card border border-white/10 rounded px-2 py-1 text-xs text-gold outline-none focus:border-gold">
+                            ${[0, 1, 2, 3, 4, 5].map(v => `<option value="${v}" ${item.flavors && item.flavors[f] == v ? 'selected' : ''}>${v}</option>`).join('')}
+                        </select>
+                    </div>
+                `).join('');
+
                 extra.innerHTML = `
-                    <div class="space-y-1">
-                        <label class="text-xs text-gray-500 uppercase font-bold">圖片 (點擊更換)</label>
-                        <div class="relative group cursor-pointer aspect-square w-32 bg-black/40 rounded-xl border border-white/10 overflow-hidden" onclick="document.getElementById('item-upload').click()">
-                            <img id="item-preview" src="${item.image || ''}" class="w-full h-full object-cover ${item.image ? '' : 'hidden'}">
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 ${item.image ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'} transition-opacity">
-                                <span class="material-symbols-outlined text-white">upload</span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-500 uppercase font-bold">圖片 (點擊更換)</label>
+                            <div class="relative group cursor-pointer aspect-square w-32 bg-black/40 rounded-xl border border-white/10 overflow-hidden" onclick="document.getElementById('item-upload').click()">
+                                <img id="item-preview" src="${item.image || ''}" class="w-full h-full object-cover ${item.image ? '' : 'hidden'}">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/40 ${item.image ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'} transition-opacity">
+                                    <span class="material-symbols-outlined text-white">upload</span>
+                                </div>
+                            </div>
+                            <input type="file" id="item-upload" accept="image/*" class="hidden" onchange="handleItemImageUpload(event)">
+                            <input id="form-image" type="hidden" value="${item.image || ''}">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-500 uppercase font-bold">風味設定 (0-5)</label>
+                            <div class="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-2 no-scrollbar">
+                                ${flavorsHtml}
                             </div>
                         </div>
-                        <input type="file" id="item-upload" accept="image/*" class="hidden" onchange="handleItemImageUpload(event)">
-                        <input id="form-image" type="hidden" value="${item.image || ''}">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-500 uppercase font-bold">成份 (逗號分隔)</label>
@@ -458,17 +477,34 @@
             const extra = document.getElementById('extra-fields');
             extra.innerHTML = '';
             if (currentTab === 'cocktails') {
+                const flavorsHtml = FLAVOR_LABELS.map(f => `
+                    <div class="flex items-center justify-between bg-black/20 p-2 rounded-lg">
+                        <span class="text-xs text-gray-400 capitalize">${f}</span>
+                        <select data-flavor="${f}" class="flavor-input bg-dark-card border border-white/10 rounded px-2 py-1 text-xs text-gold outline-none focus:border-gold">
+                            ${[0, 1, 2, 3, 4, 5].map(v => `<option value="${v}">${v}</option>`).join('')}
+                        </select>
+                    </div>
+                `).join('');
+
                 extra.innerHTML = `
-                    <div class="space-y-1">
-                        <label class="text-xs text-gray-500 uppercase font-bold">圖片 (點擊上傳)</label>
-                        <div class="relative group cursor-pointer aspect-square w-32 bg-black/40 rounded-xl border border-white/10 overflow-hidden" onclick="document.getElementById('item-upload').click()">
-                            <img id="item-preview" src="" class="w-full h-full object-cover hidden">
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 transition-opacity">
-                                <span class="material-symbols-outlined text-white">upload</span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-500 uppercase font-bold">圖片 (點擊上傳)</label>
+                            <div class="relative group cursor-pointer aspect-square w-32 bg-black/40 rounded-xl border border-white/10 overflow-hidden" onclick="document.getElementById('item-upload').click()">
+                                <img id="item-preview" src="" class="w-full h-full object-cover hidden">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 transition-opacity">
+                                    <span class="material-symbols-outlined text-white">upload</span>
+                                </div>
+                            </div>
+                            <input type="file" id="item-upload" accept="image/*" class="hidden" onchange="handleItemImageUpload(event)">
+                            <input id="form-image" type="hidden">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-500 uppercase font-bold">風味設定 (0-5)</label>
+                            <div class="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-2 no-scrollbar">
+                                ${flavorsHtml}
                             </div>
                         </div>
-                        <input type="file" id="item-upload" accept="image/*" class="hidden" onchange="handleItemImageUpload(event)">
-                        <input id="form-image" type="hidden">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-500 uppercase font-bold">成份 (逗號分隔)</label>
@@ -496,7 +532,16 @@
                 newItem.id = currentEditingId === -1 ? Date.now().toString() : items[currentEditingId].id;
                 newItem.image = document.getElementById('form-image').value;
                 newItem.ingredients = document.getElementById('form-ingredients').value.split(',').map(i => i.trim());
-                newItem.flavors = currentEditingId === -1 ? { "濃度": 1, "酸感": 1, "甜感": 1 } : items[currentEditingId].flavors;
+
+                // Collect and filter flavors
+                const flavors = {};
+                document.querySelectorAll('.flavor-input').forEach(select => {
+                    const val = parseInt(select.value);
+                    if (val > 0) {
+                        flavors[select.dataset.flavor] = val;
+                    }
+                });
+                newItem.flavors = flavors;
             }
 
             if (currentEditingId === -1) {
