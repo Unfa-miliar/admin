@@ -477,16 +477,16 @@
 
             if (currentTab === 'cocktails') {
                 const flavorsHtml = FLAVOR_LABELS.map(f => `
-                < div class= "flex items-center justify-between bg-black/20 p-2 rounded-lg" >
+                    <div class="flex items-center justify-between bg-black/20 p-2 rounded-lg">
                         <span class="text-xs text-gray-400 capitalize">${f}</span>
                         <select data-flavor="${f}" class="flavor-input bg-dark-card border border-white/10 rounded px-2 py-1 text-xs text-gold outline-none focus:border-gold">
                             ${[0, 1, 2, 3, 4, 5].map(v => `<option value="${v}" ${item.flavors && item.flavors[f] == v ? 'selected' : ''}>${v}</option>`).join('')}
                         </select>
-                    </div >
+                    </div>
                 `).join('');
 
                 extra.innerHTML = `
-                < div class= "grid grid-cols-2 gap-4" >
+                    <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label class="text-xs text-gray-500 uppercase font-bold">圖片 (點擊更換)</label>
                             <div class="relative group cursor-pointer aspect-square w-32 bg-black/40 rounded-xl border border-white/10 overflow-hidden" onclick="document.getElementById('item-upload').click()">
@@ -528,16 +528,16 @@
             extra.innerHTML = '';
             if (currentTab === 'cocktails') {
                 const flavorsHtml = FLAVOR_LABELS.map(f => `
-                < div class= "flex items-center justify-between bg-black/20 p-2 rounded-lg" >
+                    <div class="flex items-center justify-between bg-black/20 p-2 rounded-lg">
                         <span class="text-xs text-gray-400 capitalize">${f}</span>
                         <select data-flavor="${f}" class="flavor-input bg-dark-card border border-white/10 rounded px-2 py-1 text-xs text-gold outline-none focus:border-gold">
                             ${[0, 1, 2, 3, 4, 5].map(v => `<option value="${v}">${v}</option>`).join('')}
                         </select>
-                    </div >
+                    </div>
                 `).join('');
 
                 extra.innerHTML = `
-                < div class= "grid grid-cols-2 gap-4" >
+                    <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label class="text-xs text-gray-500 uppercase font-bold">圖片 (點擊上傳)</label>
                             <div class="relative group cursor-pointer aspect-square w-32 bg-black/40 rounded-xl border border-white/10 overflow-hidden" onclick="document.getElementById('item-upload').click()">
