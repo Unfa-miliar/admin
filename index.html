@@ -87,11 +87,18 @@
                     <p class="text-gray-400 text-sm">此照片將顯示在首頁最上方。建議比例 16:9 或 4:3。</p>
                     <input type="file" id="hero-upload" accept="image/*" class="hidden"
                         onchange="handleHeroUpload(event)">
-                    <button onclick="document.getElementById('hero-upload').click()"
-                        class="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl transition-all flex items-center gap-2">
-                        <span class="material-symbols-outlined">add_photo_alternate</span>
-                        更換照片
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="document.getElementById('hero-upload').click()"
+                            class="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">add_photo_alternate</span>
+                            更換照片
+                        </button>
+                        <button onclick="deleteHeroImage()"
+                            class="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">delete</span>
+                            刪除照片
+                        </button>
+                    </div>
                     <div id="upload-status" class="text-xs text-gold hidden">正在上傳中...</div>
                 </div>
             </div>
@@ -273,6 +280,16 @@
                 alert(err.message);
                 status.classList.add('hidden');
             }
+        }
+
+        function deleteHeroImage() {
+            if (!confirm('確定要刪除主視覺照片嗎？')) return;
+            menuData.HERO_IMAGE = "";
+            document.getElementById('hero-preview').src = "";
+            const status = document.getElementById('upload-status');
+            status.textContent = '照片已移除。請記得點擊「同步到 GitHub」以儲存變更。';
+            status.classList.remove('hidden');
+            setTimeout(() => status.classList.add('hidden'), 5000);
         }
 
         async function handleItemImageUpload(event) {
